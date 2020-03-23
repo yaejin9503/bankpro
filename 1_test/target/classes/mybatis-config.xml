@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<typeAliases>
+		<typeAlias type="global.sesoc.test11.vo.Customer" alias="Customer" />
+		<typeAlias type="global.sesoc.test11.vo.Board" alias="Board" />
+		<typeAlias type="global.sesoc.test11.vo.Account" alias="Account" />
+		<typeAlias type="global.sesoc.test11.vo.AccountLog" alias="AccountLog" />
+	</typeAliases>
+	   
+	<mappers>
+		<mapper resource="mappers/memberMapper.xml" />
+	</mappers>
+</configuration>
+

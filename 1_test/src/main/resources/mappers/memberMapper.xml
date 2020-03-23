@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="global.sesoc.test11.dao.BankMapper">
+
+<!-- 아이디 중복검사 -->
+<select id="selectId" resultType="String" parameterType="String">
+	select custid, password from customer
+	where custid=#{custid}
+</select>
+
+<!-- 회원가입 -->
+<insert id="insertcustomer" parameterType="Customer">
+	insert into customer values(
+		#{custid},
+		#{password},
+		#{email},
+		#{division},
+		#{name},
+		#{idno},
+		#{address}
+	)
+</insert>
+
+<!-- 회원 로그인 -->
+<select id="selectcustomer" parameterType="Customer" resultType="Customer">
+	select custid, password from customer 
+	where
+	custid=#{custid} and
+	password =#{password}
+</select>
+
+<!-- 회원정보 수정 -->
+<update id="updatecustomer" parameterType="Customer">
+	update customer 
+	set 
+		password=#{password},
+		email=#{email},
+		name=#{name},
+		address=#{address}
+	where
+		custid=#{custid}
+</update>
+
+<!-- id찾기 -->
+<select id="findid" parameterType="Customer" resultType="String">
+	select custid from customer
+	where
+		name=#{name}
+		and 
+		email=#{email}
+</select>
+
+<!-- 비밀번호 찾기 -->
+<select id="findpw" parameterType="Customer" resultType="String">
+	select password from customer
+	where
+		custid=#{custid}
+		and
+		name=#{name}
+		and 
+		email=#{email}
+</select>
+
+<!-- board 작성 -->
+<insert id="writeboard" parameterType="Board">
+
+	insert into qanboard (
+		boarddno,
+		custid,
+		title,
+		content,
+		regdate,
+		originalfile,
+		savedfile
+	)
+	values(
+		QNABOARD_SEQ.nextval,
+		#{custid},
+		#{title},
+		#{content},
+		sysdate,
+		#{originalfile},
+		#{savedfile}
+	)	
+</insert>
+
+<!-- 전체 게시판 조회하는  sql -->
+<select id ="allBoard" resultType="Board">
+	select boarddno ,title ,content, regdate, custid, hitcount
+	from qanboard
+	order by boarddno
+</select>
+
+<!-- 게시판 상세글 조회 -->
+<select id="detailboard" parameterType="int" resultType="Board">
+	select boarddno ,title ,content, regdate, 
+	custid, hitcount,originalfile,savedfile,
+	replytext,to_char(repdate,'yyyy-mm-dd') "repdate"
+	from qanboard
+	where
+	boarddno=#{boarddno}
+</select>
+
+<!-- 게시판 상세글 삭제-->
+<delete id="delete" parameterType="int">
+	delete from qanboard 
+	where 
+	boarddno=#{boarddno}
+</delete>
+
+<insert id="insertaccount" parameterType="Account">
+	insert into account(
+		accountno,
+		custid,
+		accounttype,
+		balance
+	)
+	values(
+		#{accountno},
+		#{custid},
+		#{accounttype},
+		#{balance}
+	)
+
+</insert>
+
+<insert id="insertsavingaccount" parameterType="Account">
+	insert into account(
+		accountno,
+		custid,
+		accounttype,
+		payment,
+		startdeposit,
+		enddeposit,
+		interest
+	)
+	values(
+		#{accountno},
+		#{custid},
+		#{accounttype},
+		#{payment},
+		to_date(#{startdeposit},'yyyy-mm-dd'),
+		to_date(#{enddeposit},'yyyy-mm-dd'),
+		#{interest}
+	)
+</insert>
+
+<insert id="insertloanaccount" parameterType="Account">
+	insert into account(
+		accountno,
+		custid,
+		accounttype,
+		payment,
+		startdeposit,
+		enddeposit,
+		interest,
+		approval
+	)
+	values(
+		#{accountno},
+		#{custid},
+		#{accounttype},
+		#{payment},
+		to_date(#{startdeposit},'yyyy-mm-dd'),
+		to_date(#{enddeposit},'yyyy-mm-dd'),
+		#{interest},
+		#{approval}
+	)
+</insert>
+
+<select id="showaccountList" resultType="Account" parameterType="String">
+	select
+		accountno,	
+		accounttype,
+		balance,
+		payment,
+		to_char(startdeposit,'yyyy-mm-dd') "startdeposit",
+		to_char(enddeposit,'yyyy-mm-dd') "enddeposit",
+		interest
+	from 
+		account 
+	where 
+		custid = #{custid}
+		and accounttype != 'loan'
+</select>
+
+<!-- 해당 계좌에 해당하는 열을 가져옴  입 출금 할 때 필요한 sql -->
+<select id="selectOneAccount" resultType="Account" parameterType="Account">
+	select 
+		accountno,custid, accounttype ,balance, payment 
+	from account
+	where
+	<if test="custid!=null">
+		custid=#{custid}
+	and 
+	</if>
+		accountno=#{accountno}
+</select>
+
+<!-- 해당 계좌에 돈을 입금,출금함 -->
+<insert id ="insertdeposit" parameterType="Account">
+	update
+		account 
+	set 
+		balance=#{balance},
+		payment=#{payment}
+	where 
+		accountno=#{accountno}
+	
+</insert>
+
+<!-- 내 계좌 불러오기 -->
+<select id ="selectmyaccount" parameterType="String" resultType="Account">
+	select 
+		accounttype, accountno, custid
+	from 
+		account 
+	where
+		custid=#{custid}
+		and accounttype != 'loan'
+		and accounttype != 'saving'
+</select>
+
+<!-- 타인 계좌 불러오기 -->
+<select id ="selectyouraccount" parameterType="String" resultType="Account">
+	select 
+		accounttype, accountno, custid
+	from 
+		account 
+	where
+		custid !=#{custid}
+		and accounttype != 'loan'
+		and accounttype != 'saving'
+</select>
+
+<!-- 이체 할때 쓰는 sql -->
+<update id="transfer" parameterType="Account">
+	update 
+		account
+	set 
+		balance =#{balance},
+		payment=#{payment}
+	where 
+		accountno=#{accountno}
+</update>
+
+<!-- 거래내역 저장할 때 쓰는 sql -->
+<insert id ="insertaccountlog" parameterType="AccountLog">
+	insert into accountlog (
+		logid,
+		custid,
+		accounntno,
+		eventdate,
+		eventtype,
+		amount,
+		balance
+	)
+	values(
+		ACCOUNTLOG_SEQ.nextval,
+		#{custid},
+		#{accounntno},
+		sysdate,
+		#{eventtype},
+		#{amount},
+		#{balance}
+	)
+</insert>
+<select id="selectaccount" parameterType="String" resultType="String">
+	select 
+		accountno 
+	from account
+	where accountno = #{accountno} 	
+</select>
+</mapper>
