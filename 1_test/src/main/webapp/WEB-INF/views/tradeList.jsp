@@ -13,12 +13,12 @@ function searchAccountList(resp){
 	var tag ="";
 	
 	tag+='<tr>';
-	tag+='<th width="200">取引日</th>';
-	tag+='<th width="200">時間</th>';
-	tag+='<th width="200">出金</th>';
-	tag+='<th width="200">入金</th>';
-	tag+='<th width="200">内容</th>';
-	tag+='<th width="200">残高</th>';
+	tag+='<th width="200"></th>';
+	tag+='<th width="200">기간</th>';
+	tag+='<th width="200">출금</th>';
+	tag+='<th width="200">입금</th>';
+	tag+='<th width="200">내용</th>';
+	tag+='<th width="200">잔고</th>';
 	tag+='</tr>';
 	
 	
